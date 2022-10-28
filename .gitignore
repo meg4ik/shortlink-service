@@ -112,6 +112,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+shortlink_env
 .env
 .venv
 env/
