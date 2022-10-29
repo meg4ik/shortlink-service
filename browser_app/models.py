@@ -13,4 +13,7 @@ class Link(models.Model):
     unique_users_counter = models.IntegerField(default = 0)
     user_ip = models.GenericIPAddressField(unique=True) #only if no real user
     is_delete = models.BooleanField(default = False)
-    user = models.ForeignKey(User, on_delete = models.CASCADE,related_name="link")
+    user = models.ForeignKey(User, on_delete = models.CASCADE,related_name="link") #can be fake user if 'user_ip'
+
+    def __str__(self):
+        return self.short_link
