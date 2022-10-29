@@ -3,7 +3,11 @@
 {% block content %}
     <h1>Welcome Shortlink service!</h1>
     <p>Create your own shortlink:</p>
-
+    <form action="{% url 'main' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send">
+    </form>
     
 
 {% endblock %}
