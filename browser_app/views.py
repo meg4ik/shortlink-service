@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .form import LinkForm
 from django.core.exceptions import ValidationError
 from .models import Link, User
+from .func import create_shortlink, get_user_ip
+from datetime import datetime
 
 # Create your views here.
 
@@ -19,13 +21,18 @@ class MainView(View):
     def post(self, request):
         filled_form = LinkForm(request.POST)
         if not filled_form.is_valid():
-            raise ValidationError()
-        if self.request.user.is_authenticated:
-            pass
-        link = Link(
-            full_link = request.POST.full_link,
+            raise ValidationError("Link is not valid")
 
-            )
+        obj = filled_form.save(commit=False)
+        obj.short_link = create_shortlink()
+        obj.last_enter_date = datetime.now()
+        obj.user_ip = get_user_ip(request)
+
+        if self.request.user.is_authenticated:
+            obj.user = self.request.user
+        else:
+            obj.user = User.objects.get(username='fakeuser')
+        obj.save()
 
         return redirect('main')
 
