@@ -25,7 +25,7 @@ class MainView(View):
 
         obj = filled_form.save(commit=False)
         obj.short_link = create_shortlink()
-        obj.last_enter_date = datetime.now()
+        #obj.last_enter_date = datetime.now()
         obj.user_ip = get_user_ip(request)
 
         if self.request.user.is_authenticated:
@@ -38,7 +38,22 @@ class MainView(View):
 
 class ListView(View):
     def get(self, request):
-        return render(request, 'list.html')
+        query = Link.objects
+        context_data = {
+        }
+        if self.request.user.is_authenticated:
+            context_data['links'] = query.filter(user = self.request.user)
+        else:
+            fake_user = User.objects.get(username='fakeuser')
+            context_data['links'] = query.filter(user = fake_user).filter(user_ip = get_user_ip(request))
+
+        return render(request, 'list.html', context_data)
+
+class RedirectView(View):
+    def get(self, request, shortlink):
+        link = Link.objects.get(short_link = shortlink)
+        return redirect(link.full_link)
+
 
 class LoginInterfaceView(LoginView):
     template_name = 'login.html'
