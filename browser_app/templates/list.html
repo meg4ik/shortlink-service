@@ -14,6 +14,7 @@
                             <th scope="col">Short link</th>
                             <th scope="col">Number of transitions</th>
                             <th scope="col">Last transitions time</th>
+                            <th scope="col">Most common country</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -21,11 +22,16 @@
                         <tr>
                             <td><a href="{{ k.full_link }}" class="text-decoration-non">{{ k.full_link|truncatechars:30 }}</a></td>
                             <td><a href="{% url 'redirect' shortlink=k.short_link %}" class="text-decoration-non">{% url 'redirect' shortlink=k.short_link %}</a></td>
-                            <td>{{ v.1 }}</td>
-                            {% if v.0.enter_date__max == None %}
+                            <td>{{ v.0 }}</td>
+                            {% if v.1.enter_date__max == None %}
                             <td>No transactions yet!</td>
                             {% else %}
-                            <td>{{ v.0.enter_date__max }}</td>
+                            <td>{{ v.1.enter_date__max }}</td>
+                            {% endif %}
+                            {% if v.2 %}
+                            <td>{{ v.2.0.country }}</td>
+                            {% else %}
+                            <td>No country!</td>
                             {% endif %}
                         </tr>
                     {% endfor %}

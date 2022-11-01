@@ -13,6 +13,7 @@ class Link(models.Model):
 class RedirectHistory(models.Model):
     enter_user_ip = models.GenericIPAddressField()
     enter_date = models.DateTimeField()
+    country = models.TextField(default="Unknown")
     link = models.ForeignKey(Link, on_delete = models.CASCADE,related_name="link_history")
 
     def __str__(self):
