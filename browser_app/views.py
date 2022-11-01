@@ -4,7 +4,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 from .form import LinkForm
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from .models import Link, User, RedirectHistory
 from .func import create_shortlink, get_user_ip
 from datetime import datetime
@@ -12,6 +12,20 @@ from django.db.models import Max, Count
 from ip2geotools.databases.noncommercial import DbIpCity
 
 # Create your views here.
+
+class DelView(View):
+    def post(self, request, pk):
+        link = Link.objects.get(pk=pk)
+        if self.request.user.is_authenticated:
+            if link.user != self.request.user:
+                raise PermissionDenied
+        elif get_user_ip(request) != link.user_ip:
+            raise PermissionDenied
+
+        link.is_delete = True
+        link.save()
+
+        return redirect('list')
 
 class MainView(View):
     def get(self, request):
@@ -24,6 +38,12 @@ class MainView(View):
         filled_form = LinkForm(request.POST)
         if not filled_form.is_valid():
             raise ValidationError("Link is not valid")
+        if self.request.user.is_authenticated:
+            if Link.objects.filter(user = self.request.user).filter(full_link=request.POST["full_link"]):
+                raise ValidationError("Link cannot be repeated")
+        else:
+            if Link.objects.filter(user_ip = get_user_ip(request)).filter(full_link=request.POST["full_link"]):
+                raise ValidationError("Link cannot be repeated")
 
         obj = filled_form.save(commit=False)
         obj.short_link = create_shortlink()

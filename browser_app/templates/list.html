@@ -15,13 +15,14 @@
                             <th scope="col">Number of transitions</th>
                             <th scope="col">Last transitions time</th>
                             <th scope="col">Most common country</th>
+                            <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for k, v in link_data.items %}
                         <tr>
-                            <td><a href="{{ k.full_link }}" class="text-decoration-non">{{ k.full_link|truncatechars:30 }}</a></td>
-                            <td><a href="{% url 'redirect' shortlink=k.short_link %}" class="text-decoration-non">{% url 'redirect' shortlink=k.short_link %}</a></td>
+                            <td><a href="{{ k.full_link }}" class="links">{{ k.full_link|truncatechars:30 }}</a></td>
+                            <td><a href="{% url 'redirect' shortlink=k.short_link %}" class="links">{% url 'redirect' shortlink=k.short_link %}</a></td>
                             <td>{{ v.0 }}</td>
                             {% if v.1.enter_date__max == None %}
                             <td>No transactions yet!</td>
@@ -33,6 +34,11 @@
                             {% else %}
                             <td>No country!</td>
                             {% endif %}
+                            <td>
+                                <form action="{% url 'delete' pk=k.pk %}" method="post" class="m-0">{% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
