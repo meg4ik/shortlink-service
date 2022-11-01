@@ -9,8 +9,6 @@ class Link(models.Model):
     is_delete = models.BooleanField(default = False)
     user = models.ForeignKey(User, on_delete = models.CASCADE,related_name="link") #can be fake user if 'user_ip'
 
-    def __str__(self):
-        return self.short_link
 
 class RedirectHistory(models.Model):
     enter_user_ip = models.GenericIPAddressField()

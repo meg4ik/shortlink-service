@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from .models import Link, User
 from .func import create_shortlink, get_user_ip
 from datetime import datetime
+from django.db.models import Max
 
 # Create your views here.
 
@@ -39,14 +40,16 @@ class MainView(View):
 class ListView(View):
     def get(self, request):
         query = Link.objects
-        context_data = {
-        }
         if self.request.user.is_authenticated:
-            context_data['links'] = query.filter(user = self.request.user)
+            links = query.filter(user = self.request.user).filter(is_delete = False)
         else:
             fake_user = User.objects.get(username='fakeuser')
-            context_data['links'] = query.filter(user = fake_user).filter(user_ip = get_user_ip(request))
-
+            links = query.filter(user = fake_user).filter(user_ip = get_user_ip(request)).filter(is_delete = False)
+        complex_link = {}
+        for link in links:
+            date_and_ipcounter = [link.link_history.aggregate(Max('enter_date')), link.link_history.values('enter_user_ip').distinct().count()]
+            complex_link[link] = date_and_ipcounter
+        context_data = {'link_data':complex_link}
         return render(request, 'list.html', context_data)
 
 class RedirectView(View):

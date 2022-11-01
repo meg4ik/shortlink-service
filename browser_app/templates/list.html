@@ -6,11 +6,10 @@
 {% block content %}
 <div class="container-fluid">
     <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-dark">
-        {% if links %}
+        {% if link_data %}
             <table class="table table-hover table-dark">
                 <thead>
                     <tr>
-                            <th scope="col">#</th>
                             <th scope="col">Full link</th>
                             <th scope="col">Short link</th>
                             <th scope="col">Number of transitions</th>
@@ -18,13 +17,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for i in links %}
+                    {% for k, v in link_data.items %}
                         <tr>
-                            <th scope="row">{{ loop.index }}</th>
-                            <td><a href="{{ i.full_link }}" class="text-dark text-decoration-non">{{ i.full_link }}</a></td>
-                            <td><a href="{% url 'redirect' shortlink=i.short_link %}" class="text-dark text-decoration-non">{% url 'redirect' shortlink=i.short_link %}</a></td>
-                            <td>{{ }}</td>
-                            <td>{{ }}</td>
+                            <td><a href="{{ k.full_link }}" class="text-decoration-non">{{ k.full_link|truncatechars:30 }}</a></td>
+                            <td><a href="{% url 'redirect' shortlink=k.short_link %}" class="text-decoration-non">{% url 'redirect' shortlink=k.short_link %}</a></td>
+                            <td>{{ v.1 }}</td>
+                            {% if v.0.enter_date__max == None %}
+                            <td>No transactions yet!</td>
+                            {% else %}
+                            <td>{{ v.0.enter_date__max }}</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
