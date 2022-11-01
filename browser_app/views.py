@@ -5,8 +5,8 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 from .form import LinkForm
 from django.core.exceptions import ValidationError, PermissionDenied
-from .models import Link, User, RedirectHistory
-from .func import create_shortlink, get_user_ip
+from .models import Link, RedirectHistory
+from .func import create_shortlink, get_user_ip, get_fake_user
 from datetime import datetime
 from django.db.models import Max, Count
 from ip2geotools.databases.noncommercial import DbIpCity
@@ -52,7 +52,7 @@ class MainView(View):
         if self.request.user.is_authenticated:
             obj.user = self.request.user
         else:
-            obj.user = User.objects.get(username='fakeuser')
+            obj.user = get_fake_user()
         obj.save()
 
         return redirect('main')
@@ -63,8 +63,7 @@ class ListView(View):
         if self.request.user.is_authenticated:
             links = query.filter(user = self.request.user).filter(is_delete = False)
         else:
-            fake_user = User.objects.get(username='fakeuser')
-            links = query.filter(user = fake_user).filter(user_ip = get_user_ip(request)).filter(is_delete = False)
+            links = query.filter(user = get_fake_user()).filter(user_ip = get_user_ip(request)).filter(is_delete = False)
         complex_link = {}
         for link in links:
             most_common_countries = link.link_history.values("country").annotate(count=Count('country')).order_by("-count")

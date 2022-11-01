@@ -1,5 +1,6 @@
 import random
 import string
+from browser_app.models import User
 
 def create_shortlink():
     characters = string.ascii_letters + string.digits + "-"
@@ -12,3 +13,6 @@ def get_user_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+def get_fake_user():
+    return User.objects.get(username='fakeuser')
