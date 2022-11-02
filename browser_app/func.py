@@ -1,6 +1,7 @@
 import random
 import string
 from browser_app.models import User
+from secrets import token_hex
 
 def create_shortlink():
     characters = string.ascii_letters + string.digits + "-"
@@ -15,4 +16,8 @@ def get_user_ip(request):
     return ip
 
 def get_fake_user():
+    try:
+        fakeuser = User.objects.get(username='fakeuser')
+    except:
+        User.objects.create_user('fakeuser', token_hex(16))
     return User.objects.get(username='fakeuser')
